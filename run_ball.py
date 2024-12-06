@@ -42,14 +42,6 @@ class border():
             turtle.left(90)
             turtle.forward(2*self.canvas_height)
             turtle.left(90)
-            
-    def collision(self, ball):
-        temp = []
-        for j in self.ball :
-            if ball == j:
-                continue
-            temp.append(ball.resolve_collision(j))
-        return True if True in temp else False
 
 class run():
     def __init__(self, num_ball):

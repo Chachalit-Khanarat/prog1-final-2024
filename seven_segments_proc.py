@@ -134,12 +134,3 @@ class Num():
             turtle.left(90)
             turtle.penup()
 
-    def clear(self):
-        turtle.clear()
-
-    def my_delay(self):
-        import time
-        start =  time.time()
-        while time.time() - start < self.delay:
-            pass
-
