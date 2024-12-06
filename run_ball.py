@@ -1,51 +1,93 @@
 import turtle
+
+from pyparsing import srange
 import ball
 import random
+import math
+from seven_segments_proc import Num
+import time
 
+class balldb():
+    def __init__(self):
+        self.ball = []
+        self.border = border()
+
+    def create(self, ball_num):
+        b = border()
+        for i in range(ball_num):
+            # size = random.uniform(0.01, 0.1) * b.canvas_width
+            size = 0.05 * b.canvas_width
+            x = (random.randint(int(-1*b.canvas_width + size), int(b.canvas_width - size)))
+            y = (random.randint(int(-1*b.canvas_height + size), int(b.canvas_height - size)))
+            vx = (2*random.uniform(-1.0, 1.0))
+            vy = (2*random.uniform(-1.0, 1.0))
+            ball_color = ((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+            mass =  (4/3) * math.pi * (size**3) * 2
+            tball = ball.ball(x=x, y=y, vx=vx, vy=vy, size=size, color=ball_color, mass=mass)
+            self.ball.append(tball)
+
+class border():
+    def __init__(self):
+        self.canvas_width = turtle.screensize()[0]
+        self.canvas_height = turtle.screensize()[1]
+
+    def draw_border(self):
+        turtle.penup()
+        turtle.goto(-self.canvas_width, -self.canvas_height)
+        turtle.pensize(10)
+        turtle.pendown()
+        turtle.color((0, 0, 0))
+        for i in range(2):
+            turtle.forward(2*self.canvas_width)
+            turtle.left(90)
+            turtle.forward(2*self.canvas_height)
+            turtle.left(90)
+            
+    def collision(self, ball):
+        temp = []
+        for j in self.ball :
+            if ball == j:
+                continue
+            temp.append(ball.resolve_collision(j))
+        return True if True in temp else False
+
+class run():
+    def __init__(self, num_ball):
+        turtle.speed(0)
+        turtle.tracer(0)
+        turtle.hideturtle()
+        turtle.colormode(255)
+        self.num = num_ball
+        self.ballset =  balldb()
+        self.ballset.create(self.num)
+        self.dt = 0.5
+        self.border = self.ballset.border
+        self.digit = Num((255, 0, 0))
+        
+    def run(self):
+        x = 0
+        start = time.time()
+        self.digit.draw(x)
+        while (True):
+            turtle.clear()
+            self.border.draw_border()
+            for i in self.ballset.ball:
+                i.draw_ball() 
+                i.update_ball_velocity(self.border.canvas_width,self.border.canvas_height)
+                i.move_ball(self.dt)
+            end = time.time()
+            self.digit.draw(x)
+            if end - start >= 0.2:
+                x += 1
+                start = time.time()
+            if x > 9:
+                x = 0
+            turtle.update()
+
+# num_balls = int(input("Number of balls to simulate: "))
 num_balls = 5
-turtle.speed(0)
-turtle.tracer(0)
-turtle.hideturtle()
-canvas_width = turtle.screensize()[0]
-canvas_height = turtle.screensize()[1]
-print(canvas_width, canvas_height)
-ball_radius = 0.05 * canvas_width
-turtle.colormode(255)
-xpos = []
-ypos = []
-vx = []
-vy = []
-ball_color = []
-
-# create random number of balls, num_balls, located at random positions within the canvas; each ball has a random velocity value in the x and y direction and is painted with a random color
-for i in range(num_balls):
-    xpos.append(random.uniform(-1*canvas_width + ball_radius, canvas_width - ball_radius))
-    ypos.append(random.uniform(-1*canvas_height + ball_radius, canvas_height - ball_radius))
-    vx.append(10*random.uniform(-1.0, 1.0))
-    vy.append(10*random.uniform(-1.0, 1.0))
-    ball_color.append((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-
-def draw_border():
-    turtle.penup()
-    turtle.goto(-canvas_width, -canvas_height)
-    turtle.pensize(10)
-    turtle.pendown()
-    turtle.color((0, 0, 0))
-    for i in range(2):
-        turtle.forward(2*canvas_width)
-        turtle.left(90)
-        turtle.forward(2*canvas_height)
-        turtle.left(90)
-
-dt = 0.2 # time step
-while (True):
-    turtle.clear()
-    draw_border()
-    for i in range(num_balls):
-        ball.draw_ball(ball_color[i], ball_radius, xpos[i], ypos[i])
-        ball.move_ball(i, xpos, ypos, vx, vy, dt)
-        ball.update_ball_velocity(i, xpos, ypos, vx, vy, canvas_width, canvas_height, ball_radius)
-    turtle.update()
+st = run(num_balls)
+st.run()
 
 # hold the window; close it by clicking the window close 'x' mark
 turtle.done()
